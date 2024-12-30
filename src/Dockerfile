@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:noble
 
 LABEL creator="Angelo Veltens <angelo.veltens@online.de>" mantainer="Alejandro Alonso <aalonsopersonal@gmail.com>" organization="Delegación de Alumnos UPM (da.upm.es)" version="1.0" description="Backup and restore MYSQL databases"
 
