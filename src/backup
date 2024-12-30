@@ -9,10 +9,10 @@ cleanup() {
   find /backups/ -type f -not -name ".*" -mtime +$CLEANUP_OLDER_THAN -exec rm {} \;
 }
 
-if [ -z "$MYSQL_ENV_MYSQL_HOST" ]; then echo "Error: MYSQL_ENV_MYSQL_HOST not set"; echo "Finished: FAILURE"; exit 1; fi
-if [ -z "$MYSQL_ENV_MYSQL_USER" ]; then echo "Error: MYSQL_ENV_MYSQL_USER not set"; echo "Finished: FAILURE"; exit 1; fi
-if [ -z "$MYSQL_ENV_MYSQL_DATABASE" ]; then echo "Error: MYSQL_ENV_MYSQL_DATABASE not set"; echo "Finished: FAILURE"; exit 1; fi
-if [ -z "$MYSQL_ENV_MYSQL_PASSWORD" ]; then echo "Error: MYSQL_ENV_MYSQL_PASSWORD not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$DATABASE_HOST" ]; then echo "Error: DATABASE_HOST not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$DATABASE_USER" ]; then echo "Error: DATABASE_USER not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$DATABASE_NAME" ]; then echo "Error: DATABASE_NAME not set"; echo "Finished: FAILURE"; exit 1; fi
+if [ -z "$DATABASE_PASSWORD" ]; then echo "Error: DATABASE_PASSWORD not set"; echo "Finished: FAILURE"; exit 1; fi
 
 if [ -n "$CLEANUP_OLDER_THAN" ]; then cleanup;  fi
 
@@ -20,6 +20,10 @@ echo 'creating backup archive of /var/www/html'
 tar --create --gzip -vv --directory="/var/www/html/" --file="/backups/backup_`date '+%Y%m%d'`.tar.gz" "./"
 
 echo 'creating database dump'
-mysqldump --host="${MYSQL_ENV_MYSQL_HOST}" --add-drop-table --no-tablespaces --user="${MYSQL_ENV_MYSQL_USER}" --password="${MYSQL_ENV_MYSQL_PASSWORD}" "${MYSQL_ENV_MYSQL_DATABASE}" --single-transaction --column-statistics=0 | bzip2 -c > "/backups/backup_`date '+%Y%m%d'`.sql.bz2"
+if [ "$DATABASE_CLIENT" == "mariadb" ]; then
+  mariadb-dump --host="${DATABASE_HOST}" --add-drop-table --no-tablespaces --user="${DATABASE_USER}" --password="${DATABASE_PASSWORD}" "${DATABASE_NAME}" --single-transaction | bzip2 -c > "/backups/backup_`date '+%Y%m%d'`.sql.bz2"
+else
+  mysqldump --host="${DATABASE_HOST}" --add-drop-table --no-tablespaces --user="${DATABASE_USER}" --password="${DATABASE_PASSWORD}" "${DATABASE_NAME}" --single-transaction --column-statistics=0 | bzip2 -c > "/backups/backup_`date '+%Y%m%d'`.sql.bz2"
+fi
 
 echo 'Finished: SUCCESS'
