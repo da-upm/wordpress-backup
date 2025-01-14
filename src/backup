@@ -17,13 +17,17 @@ if [ -z "$DATABASE_PASSWORD" ]; then echo "Error: DATABASE_PASSWORD not set"; ec
 if [ -n "$CLEANUP_OLDER_THAN" ]; then cleanup;  fi
 
 echo 'creating backup archive of /var/www/html'
-tar --create --gzip -vv --directory="/var/www/html/" --file="/backups/backup_`date '+%Y%m%d'`.tar.gz" "./"
+tar --create --gzip -vv --directory="/var/www/html/" --file="/tmp/backup_`date '+%Y%m%d'`.tar.gz" "./"
 
 echo 'creating database dump'
 if [ "$DATABASE_CLIENT" == "mariadb" ]; then
-  mariadb-dump --host="${DATABASE_HOST}" --add-drop-table --no-tablespaces --user="${DATABASE_USER}" --password="${DATABASE_PASSWORD}" "${DATABASE_NAME}" --single-transaction | bzip2 -c > "/backups/backup_`date '+%Y%m%d'`.sql.bz2"
+  mariadb-dump --host="${DATABASE_HOST}" --add-drop-table --no-tablespaces --user="${DATABASE_USER}" --password="${DATABASE_PASSWORD}" "${DATABASE_NAME}" --single-transaction | bzip2 -c > "/tmp/backup_`date '+%Y%m%d'`.sql.bz2"
 else
   mysqldump --host="${DATABASE_HOST}" --add-drop-table --no-tablespaces --user="${DATABASE_USER}" --password="${DATABASE_PASSWORD}" "${DATABASE_NAME}" --single-transaction --column-statistics=0 | bzip2 -c > "/backups/backup_`date '+%Y%m%d'`.sql.bz2"
 fi
+
+echo 'moving backup files to /backups'
+mv /tmp/backup_`date '+%Y%m%d'`.tar.gz /backups/
+mv /tmp/backup_`date '+%Y%m%d'`.sql.bz2 /backups/
 
 echo 'Finished: SUCCESS'
