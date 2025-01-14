@@ -5,8 +5,14 @@ LABEL creator="Angelo Veltens <angelo.veltens@online.de>" mantainer="Alejandro A
 RUN apt-get update && \
     apt-get install cron bzip2 -y && \
     apt-get clean && \
+    apt-get install davfs2 \
     rm -rf /var/lib/apt/lists/* && \
     mkdir /backups
+
+RUN mkdir -p /etc/davfs2 \
+    && echo "https://drive.upm.es/public.php/webdav SdRmlb7lXMhFMWq w0rdpress-b4ckups" >> /etc/davfs2/secrets \
+    && chmod 600 /etc/davfs2/secrets \
+    && echo "use_locks 0" >> /etc/davfs2/davfs2.conf
 
 # Instalar el cliente de base de datos basado en DATABASE_CLIENT
 ARG DATABASE_CLIENT

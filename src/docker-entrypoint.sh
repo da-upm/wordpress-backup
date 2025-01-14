@@ -21,6 +21,9 @@ EOF
 fi
 
 echo "Current crontab:"
+
+mount -t davfs https://drive.upm.es/public.php/webdav /backups
+
 crontab -l
 
 exec "$@"
