@@ -3,9 +3,8 @@ FROM ubuntu:noble
 LABEL creator="Angelo Veltens <angelo.veltens@online.de>" mantainer="Alejandro Alonso <aalonsopersonal@gmail.com>" organization="Delegación de Alumnos UPM (da.upm.es)" version="1.0" description="Backup and restore MYSQL databases"
 
 RUN apt-get update && \
-    apt-get install cron bzip2 -y && \
+    apt-get install cron bzip2 davfs2 -y && \
     apt-get clean && \
-    apt-get install davfs2 \
     rm -rf /var/lib/apt/lists/* && \
     mkdir /backups
 
